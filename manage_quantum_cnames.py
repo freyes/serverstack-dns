@@ -128,14 +128,14 @@ def reload_zone():
     check_call(cmd)
 
 
-def manage_dns(body):
-    if body['event_type'] == 'port.create.end':
-        tenant_id = body['_context_tenant_id']
-        if tenant_id not in managed_tenants():
-            logging.info('Skipping event, not managing DNS for tenant %s.' %
-                         tenant_id)
-            return
+def manage_dns(body, message):
+    tenant_id = body['_context_tenant_id']
+    if tenant_id not in managed_tenants():
+        logging.info('Skipping event, not managing DNS for tenant %s.' %
+                     tenant_id)
+        return
 
+    if body['event_type'] == 'port.create.end':
         ip = body['payload']['port']['fixed_ips'][0]['ip_address']
         instance_id = body['payload']['port']['device_id']
         port_id = body['payload']['port']['id']
@@ -156,11 +156,12 @@ def manage_dns(body):
         remove_host_entry(port_id)
         ensure_dnsmasq()
 
+    message.ack()
+
 
 def process_msg(body, message):
-    message.ack()
     try:
-        manage_dns(body)
+        manage_dns(body, message)
     except Exception as e:
         logging.error('Failed to process notification: %s' % e)
 
