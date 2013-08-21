@@ -1,0 +1,29 @@
+This simple script listens on quantum/neutron's rabbitmq queue
+for event notifications.  It responds to port create and port delete
+events for the given tenant, and manages a dnsmasq host file with
+correct entries for current instances.  You can configure the neutron
+subnet to use this DNS server instead of the default, and have full
+forward/reverse DNS from your tenant's instances.
+
+$ sudo apt-get -y install python-novaclient python-kombu dnsmasq
+$ sudo update-rc.d dnsmasq disable && sudo service dnsmasq stop
+$ bzr branch lp:~gandelman-a/+junk/serverstack_dnsmasq
+$ sudo mkdir -p /etc/serverstack && sudo chown ubuntu /etc/serverstack
+$ cp serverstack_dnsmasq/bastion_dns.conf /etc/serverstack/bastion_dns.conf
+
+Find out your openstack tenant id and place it in the tenant_ids file.
+$ echo $OS_TENANT_ID > /etc/serverstack/tenant_ids
+
+Edit /etc/serverstack/bastion_dns.conf accordingly
+
+$ sudo ./manage_serverstack_tenant_dns.py
+
+After connecting to rabbit, it should process events for newly created and
+deleted neutron ports.  If you confirm you can resolve nova instances by
+their hostnames using the dnsmasq bastion server, you can update the
+neutron network's subnet configuration and update the dns to point to your
+bastion server.
+
+Note, when resetting DNS in neutron, your bastion server's resolv.conf
+may get updated to point to the new dnsmasq local server.  Update it
+manually to point to the correct upstream DNS.
