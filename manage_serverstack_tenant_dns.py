@@ -123,16 +123,12 @@ def get_instance_hostname(instance_id):
                       instance_id)
 
 
-def reload_zone():
-    cmd = ['rndc', 'reload', config['domain']]
-    check_call(cmd)
-
-
 def manage_dns(body, message):
     tenant_id = body['_context_tenant_id']
     if tenant_id not in managed_tenants():
-        logging.info('Skipping event, not managing DNS for tenant %s.' %
-                     tenant_id)
+        logging.debug('Skipping event, not managing DNS for tenant %s.' %
+                      tenant_id)
+        message.requeue()
         return
 
     if body['event_type'] == 'port.create.end':
