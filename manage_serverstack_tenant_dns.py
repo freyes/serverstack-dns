@@ -11,7 +11,7 @@ from novaclient.v1_1 import client
 
 CONFIG_FILE = '/etc/serverstack/bastion_dns.conf'
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def get_config():
@@ -124,8 +124,13 @@ def get_instance_hostname(instance_id):
 
 
 def manage_dns(body, message):
-    tenant_id = body['_context_tenant_id']
-    if tenant_id not in managed_tenants():
+    tenant_ids = [body['_context_tenant_id']]
+    try:
+        tenant_ids.append(body['payload']['port']['tenant_id'])
+    except KeyError:
+        pass
+
+    if not set(managed_tenants()).issubset(set(tenant_ids)):
         logging.debug('Skipping event, not managing DNS for tenant %s.' %
                       tenant_id)
         message.requeue()
