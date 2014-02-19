@@ -1,0 +1,2 @@
+serverstack-tenant-dns /usr/bin
+dns.conf /etc/serverstack-dns

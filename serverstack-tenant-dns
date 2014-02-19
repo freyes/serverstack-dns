@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import ConfigParser
 import datetime
 import os
@@ -9,9 +10,9 @@ from subprocess import check_call
 from kombu import Connection, Exchange, Queue
 from novaclient.v1_1 import client
 
-CONFIG_FILE = '/etc/serverstack/bastion_dns.conf'
+CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_config():
@@ -36,7 +37,8 @@ def get_config():
         'rabbit_topic': _get('rabbit_topic'),
         'include_tenants': _get('include_tenants'),
         'hosts_file': _get('hosts_file'),
-        'domain': _get('domain')
+        'domain': _get('domain'),
+        'upstream_dns': _get('upstream_dns')
     }
 
     missing = [k for k in conf.iterkeys() if conf[k] is None]
@@ -193,7 +195,7 @@ def ensure_dnsmasq():
     cmd = ['dnsmasq', '--strict-order', '--conf-file=', '--bind-interfaces',
            '--domain=%s' % config['domain'], '--no-hosts',
            '--addn-hosts=%s' % config['hosts_file'], '-E', '--pid-file=%s' %
-           pid_file]
+           pid_file, '-S', config['upstream_dns']]
 
     if os.path.isfile(pid_file):
         pid = open(pid_file).read().strip()
