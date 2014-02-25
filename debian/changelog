@@ -1,3 +1,9 @@
+serverstack-dns (1.2.1) trusty; urgency=medium
+
+  * Use reject rather than requeue for messages for other tenants. 
+
+ -- James Page <james.page@ubuntu.com>  Tue, 25 Feb 2014 15:21:14 +0000
+
 serverstack-dns (1.2) trusty; urgency=medium
 
   * Check tenant_id on port data for host creation.
