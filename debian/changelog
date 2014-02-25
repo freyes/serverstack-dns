@@ -1,3 +1,10 @@
+serverstack-dns (1.1) trusty; urgency=medium
+
+  * d/upstart: Sort out pre-start /var/run/dnsmasq creation.
+  * Re-jig tenant filtering. 
+
+ -- James Page <james.page@ubuntu.com>  Tue, 25 Feb 2014 12:59:52 +0000
+
 serverstack-dns (1) precise; urgency=medium
 
   * Initial release.

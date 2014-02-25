@@ -4,4 +4,8 @@ description "ServerStack DNS"
 start on runlevel [2345]
 stop on runlevel [!2345]
 
+pre-start script
+  mkdir -p /var/run/dnsmasq
+end script
+
 exec /usr/bin/serverstack-tenant-dns
