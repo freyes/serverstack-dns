@@ -135,7 +135,7 @@ def manage_dns(body, message):
     if not set(managed_tenants()).issubset(set(tenant_ids)):
         logging.debug('Skipping event, not managing DNS for tenant %s.' %
                       tenant_ids)
-        message.reject()
+        message.requeue()
         return
 
     if body['event_type'] == 'port.create.end':
