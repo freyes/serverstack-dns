@@ -14,7 +14,7 @@ from novaclient.v1_1 import client
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s %(msg)s")
+    level=logging.DEBUG, format="%(asctime)s:%(levelname)s %(msg)s")
 
 
 def get_config():
