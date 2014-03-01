@@ -163,7 +163,6 @@ def manage_dns(body, message):
 
 def process_msg(body, message):
     try:
-        logging.debug("Processing message %s", message)
         manage_dns(body, message)
         message.ack()
     except Exception as e:
