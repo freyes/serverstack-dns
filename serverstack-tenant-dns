@@ -4,6 +4,7 @@ import ConfigParser
 import datetime
 import os
 import logging
+import socket
 
 from subprocess import check_call
 
@@ -170,9 +171,10 @@ def process_msg(body, message):
 
 
 def listen():
-    nova_x = Exchange(config['rabbit_exchange'], type='topic', durable=False)
-    info_q = Queue(config['rabbit_topic'], exchange=nova_x, durable=False,
-                   routing_key=config['rabbit_topic'])
+    nova_x = Exchange(config['rabbit_exchange'], type='fanout', durable=False)
+    info_q = Queue(
+        socket.gethostname(), exchange=nova_x, durable=False, auto_delete=True,
+        routing_key=config['rabbit_topic'])
 
     conn_url = 'amqp://%s:%s@%s/%s' % (config['rabbit_user'],
                                        config['rabbit_password'],
