@@ -14,7 +14,7 @@ from novaclient.v1_1 import client
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s %(msg)s")
+    level=logging.DEBUG, format="%(asctime)s:%(levelname)s %(message)s")
 
 
 def get_config():
@@ -163,6 +163,7 @@ def manage_dns(body, message):
 
 def process_msg(body, message):
     try:
+        logging.debug("Processing message %s", message)
         manage_dns(body, message)
         message.ack()
     except Exception as e:
