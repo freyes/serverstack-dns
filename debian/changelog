@@ -1,3 +1,9 @@
+serverstack-dns (1.2.3) trusty; urgency=medium
+
+  * Updates from kapil for fanout behaviour.
+
+ -- James Page <jamespage@debian.org>  Sat, 01 Mar 2014 22:03:58 +0000
+
 serverstack-dns (1.2.2) trusty; urgency=medium
 
   * Switch back to using requeue. 

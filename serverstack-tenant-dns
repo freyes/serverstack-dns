@@ -4,6 +4,7 @@ import ConfigParser
 import datetime
 import os
 import logging
+import socket
 
 from subprocess import check_call
 
@@ -12,7 +13,8 @@ from novaclient.v1_1 import client
 
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s:%(levelname)s %(message)s")
 
 
 def get_config():
@@ -135,7 +137,6 @@ def manage_dns(body, message):
     if not set(managed_tenants()).issubset(set(tenant_ids)):
         logging.debug('Skipping event, not managing DNS for tenant %s.' %
                       tenant_ids)
-        message.requeue()
         return
 
     if body['event_type'] == 'port.create.end':
@@ -159,20 +160,20 @@ def manage_dns(body, message):
         remove_host_entry(port_id)
         ensure_dnsmasq()
 
-    message.ack()
-
 
 def process_msg(body, message):
     try:
         manage_dns(body, message)
+        message.ack()
     except Exception as e:
         logging.error('Failed to process notification: %s' % e)
 
 
 def listen():
     nova_x = Exchange(config['rabbit_exchange'], type='topic', durable=False)
-    info_q = Queue(config['rabbit_topic'], exchange=nova_x, durable=False,
-                   routing_key=config['rabbit_topic'])
+    info_q = Queue(
+        socket.gethostname(), exchange=nova_x, durable=False, auto_delete=True,
+        routing_key=config['rabbit_topic'])
 
     conn_url = 'amqp://%s:%s@%s/%s' % (config['rabbit_user'],
                                        config['rabbit_password'],
