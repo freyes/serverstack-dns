@@ -171,7 +171,7 @@ def process_msg(body, message):
 
 
 def listen():
-    nova_x = Exchange(config['rabbit_exchange'], type='fanout', durable=False)
+    nova_x = Exchange(config['rabbit_exchange'], type='topic', durable=False)
     info_q = Queue(
         socket.gethostname(), exchange=nova_x, durable=False, auto_delete=True,
         routing_key=config['rabbit_topic'])
