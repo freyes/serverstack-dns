@@ -13,7 +13,8 @@ from novaclient.v1_1 import client
 
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s %(msg)s")
 
 
 def get_config():
@@ -160,12 +161,12 @@ def manage_dns(body, message):
         remove_host_entry(port_id)
         ensure_dnsmasq()
 
-    message.ack()
-
 
 def process_msg(body, message):
     try:
+        logging.debug('Message %s', message)
         manage_dns(body, message)
+        message.ack()
     except Exception as e:
         logging.error('Failed to process notification: %s' % e)
 
