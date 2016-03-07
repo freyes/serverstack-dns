@@ -9,7 +9,7 @@ import socket
 from subprocess import check_call
 
 from kombu import Connection, Exchange, Queue
-from novaclient.v1_1 import client
+from novaclient import client
 
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
@@ -112,7 +112,7 @@ def get_nova_client():
     global _client
     if _client is not None:
         return _client
-    _client = client.Client(config['os_username'], config['os_password'],
+    _client = client.Client("2", config['os_username'], config['os_password'],
                             config['os_tenant_name'], config['os_auth_url'],
                             service_type='compute')
     return _client
