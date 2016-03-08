@@ -1,3 +1,9 @@
+serverstack-dns (1.2.4) xenial; urgency=medium
+
+  * Fix support for newer versions of novaclient, making use of v2 API.
+
+ -- James Page <james.page@ubuntu.com>  Tue, 08 Mar 2016 09:58:15 +0000
+
 serverstack-dns (1.2.3) trusty; urgency=medium
 
   * Updates from kapil for fanout behaviour.
