@@ -28,9 +28,13 @@ def get_config():
     conf = {
         'os_username': os.getenv('OS_USERNAME') or _get('os_username'),
         'os_password': os.getenv('OS_PASSWORD') or _get('os_password'),
-        'os_tenant_name': (os.getenv('OS_TENANT_NAME') or
-                           _get('os_tenant_name')),
+        'os_project_name': (os.getenv('OS_PROJECT_NAME') or
+                           _get('os_project_name')),
         'os_auth_url': os.getenv('OS_AUTH_URL') or _get('os_auth_url'),
+        'os_user_domain_name': (os.getenv('OS_USER_DOMAIN_NAME') or
+                                _get('os_user_domain_name'),
+        'os_project_domain_name': (os.getenv('OS_PROJECT_DOMAIN_NAME') or
+                                   _get('os_project_domain_name'),
         'rabbit_user': _get('rabbit_user'),
         'rabbit_password': _get('rabbit_password'),
         'rabbit_host': _get('rabbit_host'),
@@ -114,6 +118,8 @@ def get_nova_client():
         return _client
     _client = client.Client("2", config['os_username'], config['os_password'],
                             config['os_tenant_name'], config['os_auth_url'],
+                            config['os_user_domain_name'],
+                            config['os_project_domain_name'],
                             service_type='compute')
     return _client
 
