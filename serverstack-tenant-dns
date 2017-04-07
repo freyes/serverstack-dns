@@ -10,6 +10,8 @@ from subprocess import check_call
 
 from kombu import Connection, Exchange, Queue
 from novaclient import client
+import keystoneauth1.identity.v3 as keystoneauth1
+import keystoneauth1.session as keystoneauth1_session
 
 CONFIG_FILE = '/etc/serverstack-dns/dns.conf'
 
@@ -28,9 +30,13 @@ def get_config():
     conf = {
         'os_username': os.getenv('OS_USERNAME') or _get('os_username'),
         'os_password': os.getenv('OS_PASSWORD') or _get('os_password'),
-        'os_tenant_name': (os.getenv('OS_TENANT_NAME') or
-                           _get('os_tenant_name')),
+        'os_project_name': (os.getenv('OS_PROJECT_NAME') or
+                           _get('os_project_name')),
         'os_auth_url': os.getenv('OS_AUTH_URL') or _get('os_auth_url'),
+        'os_user_domain_name': (os.getenv('OS_USER_DOMAIN_NAME') or
+                                _get('os_user_domain_name')),
+        'os_project_domain_name': (os.getenv('OS_PROJECT_DOMAIN_NAME') or
+                                   _get('os_project_domain_name')),
         'rabbit_user': _get('rabbit_user'),
         'rabbit_password': _get('rabbit_password'),
         'rabbit_host': _get('rabbit_host'),
@@ -112,9 +118,14 @@ def get_nova_client():
     global _client
     if _client is not None:
         return _client
-    _client = client.Client("2", config['os_username'], config['os_password'],
-                            config['os_tenant_name'], config['os_auth_url'],
-                            service_type='compute')
+    auth = keystoneauth1.Password(auth_url=config['os_auth_url'],
+                                  username=config['os_username'],
+                                  user_domain_name=config['os_user_domain_name'],
+                                  password=config['os_password'],
+                                  project_name=config['os_project_name'],
+                                  project_domain_name=config['os_project_domain_name'])
+    session = keystoneauth1_session.Session(auth=auth)
+    _client = client.Client("2", session=session)
     return _client
 
 
@@ -131,7 +142,7 @@ def get_instance_hostname(instance_id):
 
 def get_current_instances():
     client = get_nova_client()
-    tenant_name = config['os_tenant_name']
+    tenant_name = config['os_project_name']
 
     for instance in client.servers.list():
         networks = instance.networks.get('%s_admin_net' % tenant_name, None)
