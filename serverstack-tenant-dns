@@ -117,7 +117,7 @@ def get_nova_client():
     if _client is not None:
         return _client
     _client = client.Client("2", config['os_username'], config['os_password'],
-                            config['os_tenant_name'], config['os_auth_url'],
+                            config['os_project_name'], config['os_auth_url'],
                             config['os_user_domain_name'],
                             config['os_project_domain_name'],
                             service_type='compute')
@@ -137,7 +137,7 @@ def get_instance_hostname(instance_id):
 
 def get_current_instances():
     client = get_nova_client()
-    tenant_name = config['os_tenant_name']
+    tenant_name = config['os_project_name']
 
     for instance in client.servers.list():
         networks = instance.networks.get('%s_admin_net' % tenant_name, None)
