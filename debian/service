@@ -1,0 +1,10 @@
+[Unit]
+Description=ServerStack DNS manager
+After=network-online.target
+
+[Service]
+ExecStartPre=/bin/mkdir -p /var/run/dnsmasq
+ExecStart=/usr/bin/serverstack-tenant-dns
+
+[Install]
+WantedBy=multi-user.target

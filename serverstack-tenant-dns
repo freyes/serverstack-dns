@@ -221,7 +221,8 @@ def listen():
 def ensure_dnsmasq():
     pid_file = os.path.join('/var/run/dnsmasq/', config['domain'] + '.pid')
 
-    cmd = ['dnsmasq', '--strict-order', '--conf-file=', '--bind-interfaces',
+    cmd = ['dnsmasq', '--strict-order', '--conf-file=',
+           '--bind-interfaces', '--except-interface=lxcbr0',
            '--domain=%s' % config['domain'], '--no-hosts',
            '--addn-hosts=%s' % config['hosts_file'], '-E', '--pid-file=%s' %
            pid_file, '-S', config['upstream_dns']]
