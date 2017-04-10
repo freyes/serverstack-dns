@@ -42,7 +42,7 @@ def get_config():
         'rabbit_host': _get('rabbit_host'),
         'rabbit_vhost': _get('rabbit_vhost'),
         'rabbit_exchange': _get('rabbit_exchange'),
-        'add_current_instances': _get('add_current_instances'),
+        'add_current_instances': bool(_get('add_current_instances')),
         'rabbit_topic': _get('rabbit_topic'),
         'include_tenants': _get('include_tenants'),
         'hosts_file': _get('hosts_file'),
@@ -245,7 +245,7 @@ if __name__ == '__main__':
             pass
 
     add_current = config.get('add_current_instances', False)
-    if add_current:
+    if add_current is True:
         add_current_instances()
 
     ensure_dnsmasq()
