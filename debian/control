@@ -2,17 +2,17 @@ Source: serverstack-dns
 Section: net
 Priority: extra
 Maintainer: James Page <james.page@ubuntu.com>
-Build-Depends: debhelper (>= 9~), dh-python, dh-systemd, python-all
-Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 9~), dh-python, dh-systemd, python3-all
+Standards-Version: 3.9.8
 
 Package: serverstack-dns
 Architecture: all
 Section: net
 Depends: dnsmasq-base,
-         python-kombu,
-         python-novaclient,
+         python3-kombu,
+         python3-novaclient,
          ${misc:Depends},
-         ${python:Depends}
+         ${python3:Depends}
 Description: DNS management for ServerStack
  This package provides DNS services for individual tenants
  on the ServerStack QA cloud.

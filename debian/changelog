@@ -1,3 +1,18 @@
+serverstack-dns (1.2.6~ubuntu16.04.1~ppa201704101326) xenial; urgency=medium
+
+  * No-change backport to xenial
+
+ -- James Page <james.page@ubuntu.com>  Mon, 10 Apr 2017 13:26:39 +0100
+
+serverstack-dns (1.2.6) xenial; urgency=medium
+
+  * Improve handling of add_current_instances option.
+  * d/compat: Bump to 9.
+  * Switch package to use python 3.
+  * d/control: Bumped Standards-version to 3.9.8.
+
+ -- James Page <james.page@ubuntu.com>  Mon, 10 Apr 2017 13:25:52 +0100
+
 serverstack-dns (1.2.5) xenial; urgency=medium
 
   * Fixup support for ServerStack 8 keystone v3 support.

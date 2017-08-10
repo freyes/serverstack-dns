@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-import ConfigParser
+import ast
+import configparser
 import datetime
 import os
 import logging
@@ -20,9 +21,9 @@ logging.basicConfig(
 
 
 def get_config():
-    config_in = ConfigParser.SafeConfigParser()
+    config_in = configparser.ConfigParser()
     if not config_in.read(CONFIG_FILE):
-        raise Exception('Couldnt load config @ %s.' % CONFIG_FILE)
+        raise Exception('Couldnt load config @ {}'.format(CONFIG_FILE))
 
     def _get(setting):
         return config_in.get('DEFAULT', setting)
@@ -42,7 +43,8 @@ def get_config():
         'rabbit_host': _get('rabbit_host'),
         'rabbit_vhost': _get('rabbit_vhost'),
         'rabbit_exchange': _get('rabbit_exchange'),
-        'add_current_instances': bool(_get('add_current_instances')),
+        'add_current_instances':
+            ast.literal_eval(_get('add_current_instances')),
         'rabbit_topic': _get('rabbit_topic'),
         'include_tenants': _get('include_tenants'),
         'hosts_file': _get('hosts_file'),
@@ -50,10 +52,10 @@ def get_config():
         'upstream_dns': _get('upstream_dns')
     }
 
-    missing = [k for k in conf.iterkeys() if conf[k] is None]
+    missing = [k for k in conf if conf[k] is None]
     if missing:
-        logging.error('Missing config: %s' % missing)
-        raise Exception('Missing config: %s')
+        logging.error('Missing config: {}'.format(missing))
+        raise Exception('Missing config: {}'.format(missing))
 
     return conf
 
@@ -70,8 +72,8 @@ _client = None
 
 
 def add_host_entry(hostname, ip, port_id):
-    hostname = '%s.%s' % (hostname, config['domain'])
-    entry = '%s %s #port %s' % (ip, hostname, port_id)
+    hostname = '{}.{}'.format(hostname, config['domain'])
+    entry = '{} {} #port {}'.format(ip, hostname, port_id)
 
     with open(config['hosts_file']) as hosts:
         hostnames = hosts.readlines()
@@ -94,9 +96,10 @@ def add_host_entry(hostname, ip, port_id):
 
     out.append(entry)
 
-    with open(config['hosts_file'], 'wb') as cn:
-        cn.write('# Generated %s\n' % datetime.datetime.utcnow())
-        cn.write('\n'.join(out))
+    with open(config['hosts_file'], 'w') as cn:
+        cn.write('# Generated {}\n'.format(datetime.datetime.utcnow()))
+        for entry in out:
+            cn.write('{}\n'.format(entry))
 
 
 def remove_host_entry(port_id):
@@ -109,9 +112,10 @@ def remove_host_entry(port_id):
         if not host.endswith(port_id):
             out.append(host)
 
-    with open(config['hosts_file'], 'wb') as cn:
-        cn.write('# Generated %s\n' % datetime.datetime.utcnow())
-        cn.write('\n'.join(out))
+    with open(config['hosts_file'], 'w') as cn:
+        cn.write('# Generated {}\n'.format(datetime.datetime.utcnow()))
+        for entry in out:
+            cn.write('{}\n'.format(entry))
 
 
 def get_nova_client():
@@ -167,10 +171,14 @@ def manage_dns(body, message):
                       tenant_ids)
         return
 
-    if body['event_type'] == 'port.create.end':
+    if body['event_type'] in ('port.create.end', 'port.update.end'):
         ip = body['payload']['port']['fixed_ips'][0]['ip_address']
         instance_id = body['payload']['port']['device_id']
         port_id = body['payload']['port']['id']
+
+        if not instance_id:
+            logging.info('Skipping creation of DNS entry, device not set')
+            return
 
         hostname = get_instance_hostname(instance_id)
         if not hostname:
@@ -244,7 +252,7 @@ if __name__ == '__main__':
     if not os.path.isfile(config['hosts_file']):
         with open(config['hosts_file'], 'wb'):
             pass
-
+    logging.info(config)
     add_current = config.get('add_current_instances', False)
     if add_current is True:
         add_current_instances()
