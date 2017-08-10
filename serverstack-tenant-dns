@@ -151,18 +151,23 @@ def get_current_instances():
     tenant_name = config['os_project_name']
 
     for instance in client.servers.list():
+        try:
+            port_id = instance.interface_list()[0].port_id
+        except:
+            port_id = ""
         networks = instance.networks.get('%s_admin_net' % tenant_name, None)
         if networks:
-            yield get_instance_hostname(instance.id), networks[0]
+            yield get_instance_hostname(instance.id), networks[0], port_id
 
 
 def add_current_instances():
-    for hostname, ip_addr in get_current_instances():
-        add_host_entry(hostname, ip_addr, "")
+    for hostname, ip_addr, port_id in get_current_instances():
+        add_host_entry(hostname, ip_addr, port_id)
 
 
 def manage_dns(body, message):
     tenant_ids = [body['_context_tenant_id']]
+
     try:
         tenant_ids.append(body['payload']['port']['tenant_id'])
     except KeyError:
@@ -257,6 +262,8 @@ if __name__ == '__main__':
     logging.info(config)
     add_current = config.get('add_current_instances', False)
     if add_current is True:
+        with open(config['hosts_file'], 'w') as f:
+            f.write('')
         add_current_instances()
 
     ensure_dnsmasq()
