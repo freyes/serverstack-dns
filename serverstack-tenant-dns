@@ -84,10 +84,12 @@ def add_host_entry(hostname, ip, port_id):
     out = []
     # remove stale entries
     for hostname in hostnames:
+        # Sample line:
+        # 10.5.0.15 vm-name.openstacklocal #port 2485e5af-fd25-...
         _hostname = hostname.split(' ')
         ip = _hostname[0]
         hn = _hostname[1]
-        p = _hostname[2]
+        p = _hostname[3]
 
         if hn == hostname or p == port_id:
             continue
