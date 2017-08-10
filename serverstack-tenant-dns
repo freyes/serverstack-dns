@@ -6,6 +6,7 @@ import datetime
 import os
 import logging
 import socket
+import time
 
 from subprocess import check_call
 
@@ -32,7 +33,7 @@ def get_config():
         'os_username': os.getenv('OS_USERNAME') or _get('os_username'),
         'os_password': os.getenv('OS_PASSWORD') or _get('os_password'),
         'os_project_name': (os.getenv('OS_PROJECT_NAME') or
-                           _get('os_project_name')),
+                            _get('os_project_name')),
         'os_auth_url': os.getenv('OS_AUTH_URL') or _get('os_auth_url'),
         'os_user_domain_name': (os.getenv('OS_USER_DOMAIN_NAME') or
                                 _get('os_user_domain_name')),
@@ -58,6 +59,7 @@ def get_config():
         raise Exception('Missing config: {}'.format(missing))
 
     return conf
+
 
 config = get_config()
 
@@ -227,10 +229,7 @@ def listen():
     with Connection(conn_url) as conn:
         with conn.Consumer(info_q, callbacks=[process_msg]):
             while True:
-                try:
-                    conn.drain_events()
-                except KeyboardInterrupt:
-                    break
+                conn.drain_events()
 
 
 def ensure_dnsmasq():
@@ -267,4 +266,14 @@ if __name__ == '__main__':
         add_current_instances()
 
     ensure_dnsmasq()
-    listen()
+    while True:
+        try:
+            listen()
+        except KeyboardInterrupt:
+            break
+        except ConnectionError as ex:
+            logging.debug('Connection error: %s' % str(ex))
+            logging.warn('Connection error, reconnecting in 10 seconds')
+            time.sleep(10)
+        except Exception as ex:
+            logging.error('Unhandled exception: %s' % str(ex))
